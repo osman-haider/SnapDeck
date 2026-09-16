@@ -1,0 +1,15 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+python-pptx>=0.6.23
+python-docx>=1.1.0
+matplotlib>=3.8
+requests>=2.31
+python-multipart>=0.0.9
+
+# Loads backend/.env automatically at startup (OPENAI_API_KEY, OPENAI_BASE_URL, OPENAI_MODEL).
+python-dotenv>=1.0.0
+
+# Optional: only used when OPENAI_API_KEY is set in the environment.
+# SnapDeck works perfectly well without this installed — it falls back to a
+# deterministic, data-grounded insight sentence instead of calling an LLM.
+openai>=1.30.0
