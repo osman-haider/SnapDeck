@@ -1,0 +1,12 @@
+field,value,chart_label,chart_value
+title,Q3 Business Review,,
+subtitle,Acme Corp -- Data & Analytics Team,,
+revenue,$2.4M,,
+growth,18%,,
+top_region,North America,,
+churn,4.1%,,
+nps,62,,
+,,North America,120
+,,EMEA,95
+,,APAC,60
+,,LATAM,40
