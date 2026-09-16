@@ -16,6 +16,10 @@ On first startup, `app/sample_bootstrap.py` auto-generates two bundled sample te
 
 Both use plain `{{tag}}` placeholders (see below), so you never have to hand-build a template to see the demo work.
 
+## Serving the UI
+
+This backend also mounts and serves the entire `frontend/` folder as static files, at `/`. That means once `uvicorn` is running, opening **`http://127.0.0.1:8000`** in a browser gives you the complete SnapDeck app — there's no separate frontend server to start. That mount (`app.mount("/", StaticFiles(...), ...)` at the bottom of `app/main.py`) is registered *after* every `/api/*` route and after FastAPI's own `/docs`/`/redoc`/`/openapi.json`, so none of those are shadowed by it.
+
 ## API
 
 All endpoints are also documented interactively at `http://127.0.0.1:8000/docs`.

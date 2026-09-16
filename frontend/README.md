@@ -2,20 +2,26 @@
 
 A plain HTML/CSS/JS single-page app — no build step, no framework, no npm install.
 
-## Run it
+## Normal usage: you don't run this separately
+
+The FastAPI backend mounts this entire folder as static files and serves it at `/` (see the bottom of `backend/app/main.py`). So the normal way to use SnapDeck is just to run the backend (`../backend/README.md`) and open `http://127.0.0.1:8000` — that request is served by the same origin, so `index.html` calls the API with relative paths (`window.SNAPDECK_API_BASE = ""`, set in `index.html`) and everything just works. There is nothing to start here.
+
+## Optional: serving this folder on its own
+
+You'd only do this if you're actively editing frontend files and want a separate dev server (e.g. one with live-reload) instead of restarting `uvicorn` each time — `uvicorn --reload` already picks up backend changes, but static files are just files, so any static server works fine too:
 
 ```powershell
 cd frontend
 python -m http.server 5500
 ```
 
-Then open `http://127.0.0.1:5500` in your browser. Make sure the backend is running first (see `../backend/README.md`) — by default the frontend expects it at `http://127.0.0.1:8000`.
-
-If you serve the backend from a different host/port, change the constant at the bottom of `index.html`:
+Then open `http://127.0.0.1:5500`. Because the frontend is now on a *different* origin than the backend (`8000` vs `5500`), point it at the backend explicitly by changing the constant at the bottom of `index.html`:
 
 ```html
 <script>window.SNAPDECK_API_BASE = "http://127.0.0.1:8000";</script>
 ```
+
+(The backend's CORS middleware already allows all origins, so this cross-origin setup works out of the box.)
 
 ## Files
 

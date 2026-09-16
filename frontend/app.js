@@ -1,7 +1,9 @@
 // SnapDeck frontend — plain JS, no build step, no framework.
 // Talks to the FastAPI backend at window.SNAPDECK_API_BASE (set in index.html).
-
-const API_BASE = window.SNAPDECK_API_BASE || "http://127.0.0.1:8000";
+//
+// Uses ?? rather than || so an intentional empty string ("" — same-origin,
+// the normal case when the backend serves this file itself) isn't overridden.
+const API_BASE = window.SNAPDECK_API_BASE ?? "http://127.0.0.1:8000";
 
 // --------------------------------------------------------------------- //
 // State

@@ -187,7 +187,14 @@
     could look like in that category.
   </footer>
 
-  <script>window.SNAPDECK_API_BASE = "http://127.0.0.1:8000";</script>
+  <!--
+    Empty string = call the API on the same origin this page was served from.
+    That's correct when the FastAPI backend serves this frontend directly
+    (the normal way to run SnapDeck — see the root README). Only set this to
+    an absolute URL like "http://127.0.0.1:8000" if you're serving this file
+    from a separate static server pointed at a backend running elsewhere.
+  -->
+  <script>window.SNAPDECK_API_BASE = "";</script>
   <script src="app.js"></script>
 </body>
 </html>

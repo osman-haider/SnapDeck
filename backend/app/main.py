@@ -7,6 +7,9 @@ Endpoints:
   POST /api/parse             parse an uploaded CSV or a public Google Sheet URL
   POST /api/render            fill a template + generate the AI insight + (optional) chart
   GET  /api/download/{id}     download a previously generated file
+  GET  /                      the frontend UI itself (see the static mount at the bottom
+                              of this file) — running just this backend is enough to use
+                              SnapDeck; there's no separate frontend server to start.
 
 See backend/README.md for full request/response shapes.
 """
@@ -22,17 +25,21 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from . import charts, parsing, storage, templating
 from . import insight as insight_module
 from .sample_bootstrap import ensure_sample_templates
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent  # .../backend/app
+BACKEND_DIR = BASE_DIR.parent  # .../backend
+PROJECT_DIR = BACKEND_DIR.parent  # .../SnapDeck
 SAMPLE_DIR = BASE_DIR / "sample_data"
+FRONTEND_DIR = PROJECT_DIR / "frontend"
 
 # Load backend/.env (OPENAI_API_KEY, OPENAI_BASE_URL, OPENAI_MODEL) regardless of
 # the current working directory the server happens to be started from.
-load_dotenv(dotenv_path=BASE_DIR.parent / ".env")
+load_dotenv(dotenv_path=BACKEND_DIR / ".env")
 
 app = FastAPI(
     title="SnapDeck API",
@@ -56,11 +63,6 @@ app.add_middleware(
 @app.on_event("startup")
 def _on_startup() -> None:
     ensure_sample_templates(SAMPLE_DIR)
-
-
-@app.get("/")
-def root():
-    return {"message": "SnapDeck API is running. See /docs for the interactive API explorer."}
 
 
 @app.get("/api/health")
@@ -219,3 +221,15 @@ def download(file_id: str):
             "Click Generate again.",
         )
     return FileResponse(path=record["path"], filename=record["filename"], media_type=record["media_type"])
+
+
+# --------------------------------------------------------------------------- #
+# Serve the frontend
+# --------------------------------------------------------------------------- #
+# Mounted LAST and deliberately at "/" so it acts as a catch-all: every /api/*
+# route and FastAPI's own /docs, /redoc, /openapi.json are matched first
+# because they were registered above this point. html=True makes StaticFiles
+# serve frontend/index.html for "/" itself, so opening this backend's own URL
+# in a browser is the entire app — no separate frontend server required.
+if FRONTEND_DIR.is_dir():
+    app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")

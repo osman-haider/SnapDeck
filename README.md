@@ -24,11 +24,11 @@ SnapDeck/
 └── frontend/    A plain HTML/CSS/JS single-page app (no build step) that talks to the backend
 ```
 
-See `backend/README.md` and `frontend/README.md` for setup instructions for each half.
+The backend serves the frontend itself, so there's only one thing to run — see `backend/README.md` for endpoint details, or `frontend/README.md` for the rare case you want to serve the frontend separately.
 
 ## Quick start (Windows / PowerShell)
 
-**1. Start the backend**
+**Run the backend — this is the only command you need**
 
 ```powershell
 cd backend
@@ -38,18 +38,11 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-The API is now running at `http://127.0.0.1:8000` (interactive docs at `/docs`). Sample template files (`.pptx` / `.docx`) are generated automatically on first startup — there's nothing to download or configure.
+Then open **`http://127.0.0.1:8000`** in your browser — that's the full app UI, served directly by the backend (no separate frontend server, no second terminal, no build step). Interactive API docs are at `http://127.0.0.1:8000/docs`. Sample template files (`.pptx` / `.docx`) are generated automatically on first startup — there's nothing to download or configure.
 
-**2. Serve the frontend** (in a second terminal)
+*(Advanced/optional: `frontend/README.md` explains how to serve the frontend from its own static server instead, for a separate frontend-only dev workflow — not needed for normal use.)*
 
-```powershell
-cd frontend
-python -m http.server 5500
-```
-
-Open `http://127.0.0.1:5500` in your browser.
-
-**3. (Optional) Turn on real AI insight generation**
+**(Optional) Turn on real AI insight generation**
 
 By default, SnapDeck writes headline insights with a deterministic, data-grounded fallback (no API key required — it always works). To use a real LLM instead, copy `backend/.env.example` to `backend/.env`, add your OpenAI API key, and restart the backend:
 
