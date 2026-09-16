@@ -1,0 +1,144 @@
+/* Small custom touches on top of Tailwind's utility classes. */
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.tab-btn {
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.5rem;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab-btn:hover {
+  background: #e2e8f0;
+}
+
+.tab-btn-active,
+.tab-btn-active:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+.btn-primary {
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  border-radius: 0.6rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.btn-primary:hover {
+  background: #4338ca;
+}
+
+.btn-primary:active {
+  transform: scale(0.99);
+}
+
+.btn-primary:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: #4f46e5;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid #c7d2fe;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #eef2ff;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.format-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  color: #334155;
+}
+
+.format-option:has(input:checked) {
+  border-color: #4f46e5;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.slide-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: white;
+}
+
+.field-row,
+.chart-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.field-row input,
+.chart-row input {
+  width: 100%;
+  font-size: 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.45rem;
+  padding: 0.4rem 0.55rem;
+}
+
+.row-remove-btn {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+}
+
+.row-remove-btn:hover {
+  color: #ef4444;
+}
+
+.spinner {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 0.4rem;
+  vertical-align: -2px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
