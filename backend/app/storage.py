@@ -9,12 +9,15 @@ project's "Do Not Build" list).
 
 from __future__ import annotations
 
+import tempfile
 import uuid
 from pathlib import Path
 from typing import TypedDict
 
-GENERATED_DIR = Path(__file__).resolve().parent.parent / "generated"
-GENERATED_DIR.mkdir(exist_ok=True)
+# Written to the system temp dir (Vercel functions only allow writes under
+# /tmp — the deployed source tree itself is read-only), not the repo.
+GENERATED_DIR = Path(tempfile.gettempdir()) / "snapdeck-generated"
+GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 
 
 class GeneratedFile(TypedDict):

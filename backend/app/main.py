@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import base64
 import json
+import tempfile
 from pathlib import Path
 from typing import Optional
 
@@ -36,6 +37,11 @@ BACKEND_DIR = BASE_DIR.parent  # .../backend
 PROJECT_DIR = BACKEND_DIR.parent  # .../SnapDeck
 SAMPLE_DIR = BASE_DIR / "sample_data"
 FRONTEND_DIR = PROJECT_DIR / "frontend"
+
+# The bundled sample templates are gitignored and generated on first run (see
+# sample_bootstrap.py). The deployed source tree is read-only on Vercel, so
+# they're generated into the system temp dir instead of SAMPLE_DIR itself.
+TEMPLATE_DIR = Path(tempfile.gettempdir()) / "snapdeck-templates"
 
 # Load backend/.env (OPENAI_API_KEY, OPENAI_BASE_URL, OPENAI_MODEL_NAME) regardless of
 # the current working directory the server happens to be started from.
@@ -62,7 +68,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 def _on_startup() -> None:
-    ensure_sample_templates(SAMPLE_DIR)
+    ensure_sample_templates(TEMPLATE_DIR)
 
 
 @app.get("/api/health")
@@ -147,7 +153,11 @@ async def render(
         is_docx = template_type == "onepager"
         if not (is_pptx or is_docx):
             raise HTTPException(400, "template_type must be 'deck' or 'onepager'.")
-        template_path = SAMPLE_DIR / ("template_deck.pptx" if is_pptx else "template_onepager.docx")
+        template_path = TEMPLATE_DIR / ("template_deck.pptx" if is_pptx else "template_onepager.docx")
+        if not template_path.exists():
+            # Serverless platforms don't reliably run ASGI startup events, so
+            # fall back to generating it here on first use.
+            ensure_sample_templates(TEMPLATE_DIR)
         if not template_path.exists():
             raise HTTPException(500, "Sample template is missing — restart the server to regenerate it.")
         raw_template_bytes = template_path.read_bytes()
