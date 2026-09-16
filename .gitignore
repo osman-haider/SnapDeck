@@ -16,3 +16,4 @@ backend/app/sample_data/template_onepager.docx
 # OS
 .DS_Store
 Thumbs.db
+.env
