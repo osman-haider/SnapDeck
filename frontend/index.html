@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SnapDeck — From spreadsheet to slide</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="styles.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%234F46E5'/%3E%3Ctext x='50' y='66' font-size='55' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3ES%3C/text%3E%3C/svg%3E" />
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+  <header class="border-b border-slate-200 bg-white">
+    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">S</div>
+          <h1 class="text-xl font-bold text-slate-900">SnapDeck</h1>
+        </div>
+        <p class="text-sm text-slate-500 mt-1">From spreadsheet to slide, before your coffee gets cold.</p>
+      </div>
+      <div class="text-right hidden sm:block">
+        <p class="text-xs text-slate-400 max-w-xs">
+          An independent demo project inspired by the reports-automation category —
+          not affiliated with or an official product of any company it references.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- LEFT: Data + Options -->
+    <section class="space-y-6">
+
+      <!-- Step 1: Data source -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <h2 class="font-semibold text-slate-900 mb-1">1. Data source</h2>
+        <p class="text-sm text-slate-500 mb-4">Start with the sample dataset, or bring your own.</p>
+
+        <div class="flex gap-2 mb-4" role="tablist">
+          <button data-tab="sample" class="tab-btn tab-btn-active" type="button">Sample data</button>
+          <button data-tab="csv" class="tab-btn" type="button">Upload CSV</button>
+          <button data-tab="sheet" class="tab-btn" type="button">Google Sheet</button>
+        </div>
+
+        <div id="tab-sample" class="tab-panel">
+          <p class="text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-3">
+            Loaded automatically — a fictional Q3 business review. Edit any value below,
+            or switch tabs to load your own data.
+          </p>
+        </div>
+
+        <div id="tab-csv" class="tab-panel hidden">
+          <p class="text-xs text-slate-500 mb-2">
+            CSV columns: <code class="bg-slate-100 px-1 rounded">field, value</code> and optionally
+            <code class="bg-slate-100 px-1 rounded">chart_label, chart_value</code>.
+          </p>
+          <input id="csv-file-input" type="file" accept=".csv" class="text-sm w-full mb-3" />
+          <button id="load-csv-btn" class="btn-secondary" type="button">Load CSV</button>
+        </div>
+
+        <div id="tab-sheet" class="tab-panel hidden">
+          <p class="text-xs text-slate-500 mb-2">
+            Must be shared as "Anyone with the link can view." Same column format as CSV.
+          </p>
+          <input id="sheet-url-input" type="url" placeholder="https://docs.google.com/spreadsheets/d/..."
+                 class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2 mb-3" />
+          <button id="load-sheet-btn" class="btn-secondary" type="button">Load Sheet</button>
+        </div>
+
+        <div id="source-status" class="mt-3 text-sm"></div>
+      </div>
+
+      <!-- Editable fields -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="font-semibold text-slate-900">Fields</h2>
+          <button id="add-field-btn" class="text-xs text-indigo-600 hover:underline" type="button">+ Add field</button>
+        </div>
+        <p class="text-sm text-slate-500 mb-3">Edit any value, then hit Regenerate to see the deck update.</p>
+        <div id="fields-table" class="space-y-2"></div>
+      </div>
+
+      <!-- Editable chart data -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="font-semibold text-slate-900">Chart data</h2>
+          <button id="add-chart-row-btn" class="text-xs text-indigo-600 hover:underline" type="button">+ Add point</button>
+        </div>
+        <p class="text-sm text-slate-500 mb-3">Optional — used for the bar chart, if enabled below.</p>
+        <div id="chart-table" class="space-y-2"></div>
+      </div>
+
+      <!-- Step 2 & 3: Template + options -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+        <h2 class="font-semibold text-slate-900 mb-3">2. Template &amp; options</h2>
+
+        <label class="block text-sm font-medium text-slate-700 mb-1">Output format</label>
+        <div class="flex gap-2 mb-4">
+          <label class="format-option">
+            <input type="radio" name="template_type" value="deck" checked />
+            <span>Slide Deck (.pptx)</span>
+          </label>
+          <label class="format-option">
+            <input type="radio" name="template_type" value="onepager" />
+            <span>One-Pager Doc (.docx)</span>
+          </label>
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-slate-700 mb-3">
+          <input id="include-chart-checkbox" type="checkbox" class="w-4 h-4" />
+          Include a bar chart from the chart data above
+        </label>
+
+        <div id="chart-title-row" class="hidden mb-3">
+          <label class="block text-sm font-medium text-slate-700 mb-1">Chart title</label>
+          <input id="chart-title-input" type="text" value="Revenue by Region"
+                 class="w-full text-sm border border-slate-300 rounded-lg px-3 py-2" />
+        </div>
+
+        <details class="mb-2">
+          <summary class="text-sm text-indigo-600 cursor-pointer select-none">Advanced: use your own template</summary>
+          <div class="mt-2">
+            <p class="text-xs text-slate-500 mb-2">
+              Upload a .pptx or .docx containing <code class="bg-slate-100 px-1 rounded">{{tag}}</code>
+              placeholders matching your field names above (plus <code class="bg-slate-100 px-1 rounded">{{ai_insight}}</code>
+              for the generated insight).
+            </p>
+            <input id="custom-template-input" type="file" accept=".pptx,.docx" class="text-sm w-full" />
+          </div>
+        </details>
+
+        <button id="generate-btn" class="btn-primary w-full mt-4" type="button">Generate</button>
+      </div>
+    </section>
+
+    <!-- RIGHT: Preview -->
+    <section>
+      <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm sticky top-6">
+        <h2 class="font-semibold text-slate-900 mb-1">Preview</h2>
+        <p class="text-sm text-slate-500 mb-4">
+          A structured summary of what's in the generated file — open the real download for the full design.
+        </p>
+
+        <div id="preview-empty" class="text-sm text-slate-400 border border-dashed border-slate-300 rounded-lg p-8 text-center">
+          Click <strong>Generate</strong> to see a preview here.
+        </div>
+
+        <div id="preview-content" class="hidden space-y-4">
+
+          <div id="preview-slide-title" class="slide-card">
+            <p class="text-xs uppercase tracking-wide text-indigo-500 font-semibold mb-1">Title slide</p>
+            <p id="preview-title" class="text-lg font-bold text-slate-900"></p>
+            <p id="preview-subtitle" class="text-sm text-slate-500"></p>
+          </div>
+
+          <div class="slide-card">
+            <p class="text-xs uppercase tracking-wide text-indigo-500 font-semibold mb-2">Key metrics</p>
+            <ul id="preview-metrics" class="text-sm text-slate-700 space-y-1"></ul>
+          </div>
+
+          <div id="preview-chart-card" class="slide-card hidden">
+            <p class="text-xs uppercase tracking-wide text-indigo-500 font-semibold mb-2">Chart</p>
+            <img id="preview-chart-image" class="rounded-lg border border-slate-200 w-full" alt="Generated chart" />
+          </div>
+
+          <div class="slide-card bg-indigo-50 border-indigo-200">
+            <p class="text-xs uppercase tracking-wide text-indigo-600 font-semibold mb-2">✨ Headline insight (AI-generated)</p>
+            <p id="preview-insight" class="text-sm text-slate-800 leading-relaxed"></p>
+          </div>
+
+          <div id="preview-warnings" class="hidden text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded-lg p-3"></div>
+
+          <a id="download-link" href="#" class="btn-primary w-full block text-center" download>
+            Download file
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-6xl mx-auto px-6 py-8 text-xs text-slate-400">
+    SnapDeck is an independent demo project. It reconstructs, at small scale, the "connect data → generate
+    a deck" mechanic common to reports-automation tools, to demonstrate what a self-serve trial experience
+    could look like in that category.
+  </footer>
+
+  <script>window.SNAPDECK_API_BASE = "http://127.0.0.1:8000";</script>
+  <script src="app.js"></script>
+</body>
+</html>
