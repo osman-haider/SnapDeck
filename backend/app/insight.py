@@ -97,7 +97,7 @@ def generate_insight(fields: dict[str, str], chart: list[dict[str, Any]]) -> str
         return _fallback_insight(fields, chart)
 
     base_url = os.environ.get("OPENAI_BASE_URL", "").strip() or None
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini").strip() or "gpt-4o-mini"
+    model = os.environ.get("OPENAI_MODEL_NAME", "gpt-4o-mini").strip() or "gpt-4o-mini"
 
     try:
         client = OpenAI(api_key=api_key, base_url=base_url) if base_url else OpenAI(api_key=api_key)

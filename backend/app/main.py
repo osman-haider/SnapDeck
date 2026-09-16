@@ -37,7 +37,7 @@ PROJECT_DIR = BACKEND_DIR.parent  # .../SnapDeck
 SAMPLE_DIR = BASE_DIR / "sample_data"
 FRONTEND_DIR = PROJECT_DIR / "frontend"
 
-# Load backend/.env (OPENAI_API_KEY, OPENAI_BASE_URL, OPENAI_MODEL) regardless of
+# Load backend/.env (OPENAI_API_KEY, OPENAI_BASE_URL, OPENAI_MODEL_NAME) regardless of
 # the current working directory the server happens to be started from.
 load_dotenv(dotenv_path=BACKEND_DIR / ".env")
 

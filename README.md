@@ -49,7 +49,7 @@ By default, SnapDeck writes headline insights with a deterministic, data-grounde
 ```
 OPENAI_API_KEY=sk-...
 OPENAI_BASE_URL=
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL_NAME=gpt-4o-mini
 ```
 
 `.env` is loaded automatically on startup. `OPENAI_BASE_URL` is optional — leave it blank to use OpenAI's default endpoint, or point it at any OpenAI-compatible endpoint (Azure OpenAI, a self-hosted proxy, OpenRouter, etc.).
