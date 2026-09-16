@@ -1,0 +1,18 @@
+# Python
+backend/.venv/
+backend/**/__pycache__/
+*.pyc
+
+# Environment
+backend/.env
+
+# Generated demo output (regenerated on demand, never needs to be committed)
+backend/generated/
+
+# Bundled sample templates are auto-generated at runtime — no need to track them
+backend/app/sample_data/template_deck.pptx
+backend/app/sample_data/template_onepager.docx
+
+# OS
+.DS_Store
+Thumbs.db
