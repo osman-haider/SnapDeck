@@ -84,40 +84,84 @@ def parse_csv_text(text: str) -> tuple[dict[str, str], list[dict[str, Any]], lis
     return fields, chart, warnings
 
 
-def to_csv_export_url(sheet_url: str) -> str:
-    """Convert a normal Google Sheets share URL into its CSV-export URL."""
+def _extract_sheet_id(sheet_url: str) -> str:
     match = re.search(r"/spreadsheets/d/([a-zA-Z0-9-_]+)", sheet_url)
     if not match:
         raise ValueError(
             "That doesn't look like a Google Sheets URL. Expected something like "
             "https://docs.google.com/spreadsheets/d/.../edit"
         )
-    sheet_id = match.group(1)
+    return match.group(1)
+
+
+def _extract_gid(sheet_url: str) -> str | None:
     gid_match = re.search(r"[?#&]gid=(\d+)", sheet_url)
-    gid = gid_match.group(1) if gid_match else "0"
-    return f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
+    return gid_match.group(1) if gid_match else None
 
 
-def parse_google_sheet(sheet_url: str) -> tuple[dict[str, str], list[dict[str, Any]], list[str]]:
-    """Fetch a public Google Sheet as CSV and parse it the same way as an upload."""
-    export_url = to_csv_export_url(sheet_url)
+def to_csv_export_url(sheet_url: str, gid: str | None = None) -> str:
+    """Build a Google Sheets CSV-export URL.
+
+    If ``gid`` is omitted, no gid parameter is added at all (rather than
+    guessing "0") — Google's /export endpoint returns its default/first sheet
+    when gid is absent, but returns an HTTP 400 for a gid that doesn't exist.
+    Guessing "0" is wrong often enough (reordered/duplicated/deleted tabs
+    all shift which gid is really first) that omitting it is the safer default.
+    """
+    sheet_id = _extract_sheet_id(sheet_url)
+    base = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"
+    return f"{base}&gid={gid}" if gid else base
+
+
+def _looks_like_html(text: str) -> bool:
+    stripped = text.lstrip()
+    return stripped.startswith("<") or "<html" in stripped[:200].lower()
+
+
+def _fetch_csv(url: str) -> str:
+    """Fetch one export URL, raising ValueError with a clear reason on any failure."""
     try:
-        response = requests.get(export_url, timeout=10)
+        response = requests.get(url, timeout=10)
     except requests.RequestException as exc:
         raise ValueError(f"Could not reach that Google Sheet: {exc}") from exc
 
     if response.status_code != 200:
-        raise ValueError(
-            "Could not read that Google Sheet (HTTP "
-            f"{response.status_code}). Make sure sharing is set to "
-            "'Anyone with the link can view'."
-        )
-    # A private/misconfigured sheet usually redirects to an HTML sign-in page.
-    stripped = response.text.lstrip()
-    if stripped.startswith("<") or "<html" in stripped[:200].lower():
+        raise ValueError(f"Google responded with HTTP {response.status_code} for that sheet.")
+
+    # A private/misconfigured sheet usually redirects to an HTML sign-in page
+    # instead of returning CSV — 200 OK, but not actually the data we want.
+    if _looks_like_html(response.text):
         raise ValueError(
             "That Google Sheet doesn't look publicly readable. Set sharing to "
             "'Anyone with the link can view' and try again."
         )
 
-    return parse_csv_text(response.text)
+    return response.text
+
+
+def parse_google_sheet(sheet_url: str) -> tuple[dict[str, str], list[dict[str, Any]], list[str]]:
+    """Fetch a public Google Sheet as CSV and parse it the same way as an upload.
+
+    Tries the specific tab from the URL's gid (if present) first, since that's
+    the exact tab the person is looking at; falls back to the sheet's default
+    export (no gid) if that attempt fails, since a stale or mismatched gid is a
+    common cause of an otherwise-correctly-shared sheet failing to load.
+    """
+    gid = _extract_gid(sheet_url)
+    urls_to_try = []
+    if gid:
+        urls_to_try.append(to_csv_export_url(sheet_url, gid=gid))
+    urls_to_try.append(to_csv_export_url(sheet_url))  # default/first sheet, no gid
+
+    last_error = "Could not read that Google Sheet."
+    for url in urls_to_try:
+        try:
+            csv_text = _fetch_csv(url)
+        except ValueError as exc:
+            last_error = str(exc)
+            continue
+        return parse_csv_text(csv_text)
+
+    raise ValueError(
+        f"{last_error} Make sure sharing is set to 'Anyone with the link can view', then try again."
+    )
